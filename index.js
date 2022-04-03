@@ -25,6 +25,8 @@ bot.on("ready", () => {
     console.log("Bot is upp and ready");
 })
 
+
+
 bot.on("messageCreate", msg => {
 
     let args = msg.content.substring(PREFIX.length).split(" ");
@@ -42,6 +44,17 @@ bot.on("messageCreate", msg => {
                 server.player.play(resource);
 
                 server.queue.shift();
+            }
+
+            function disconnect(msg) {
+                var server = servers[msg.guild.id];
+                        server.player.stop();
+                        server.connection.destroy();
+                        server = {
+                            queue: [],
+                            connection: null,
+                            player: null
+                        }
             }
 
             if(!args[1] ) {
@@ -95,8 +108,7 @@ bot.on("messageCreate", msg => {
                         play(msg);
                     }
                     else {
-                        server.player.stop();
-                        server.connection.destroy();
+                        disconnect(msg);
                     }
                 });
             }
@@ -123,7 +135,13 @@ bot.on("messageCreate", msg => {
         break;
 
         case("s"):
-            play(msg);
+            if(servers[msg.guild.id].queue[0]) {
+                play(msg);
+            }
+            else {
+                disconnect(msg);
+            }
+            
         break
 
         case("h"):
@@ -133,10 +151,7 @@ bot.on("messageCreate", msg => {
         break;
 
         case("k"):
-            var server = servers[msg.guild.id];
-            server.queue = [];
-            server.player.stop();
-            server.connection.destroy();
+            disconnect(msg);
         break;
         
     }
