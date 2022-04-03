@@ -22,7 +22,7 @@ const PREFIX = "!";
 var servers = {};
 
 bot.on("ready", () => {
-    console.log("Bot is upp and ready");
+    console.log("Bot is up and ready");
 })
 
 
@@ -33,6 +33,10 @@ bot.on("messageCreate", msg => {
 
     switch(args[0].toLowerCase()) {
         case("p"):
+            /**
+             * Plays the next song in the queue
+             * @param {*} msg messege to get guild.id
+             */
             function play(msg) {
                 console.log("Play called");
                 
@@ -46,43 +50,60 @@ bot.on("messageCreate", msg => {
                 server.queue.shift();
             }
 
+            /**
+             * Safeley disconnect bot from server
+             * @param {*} msg messege to get guild.id
+             */
             function disconnect(msg) {
                 var server = servers[msg.guild.id];
-                        server.player.stop();
-                        server.connection.destroy();
-                        server = {
-                            queue: [],
-                            connection: null,
-                            player: null
-                        }
+                
+                try {
+                    server.player.stop();
+                    server.connection.destroy();
+                } catch (error) {
+                    msg.reply("I am not connected??? 🤰")
+                }
+                
+                server = {
+                    queue: [],
+                    connection: null,
+                    player: null
+                }
+                console.log("Disconnected from server")
             }
 
+            // Check if there is a link after !p
             if(!args[1] ) {
                 msg.channel.send("Put a link???");
                 return;
             }
 
+            // Check if user is connected to voice
             if(!msg.member.voice.channel) {
                 msg.channel.send("Bruhh connect to voice");
                 return;
             }
             
+            // Check if given link is valid
             if(!ytdl.validateURL(args[1])) {
                 msg.reply("Plox insert valid Youtube URL");
                 return;
             }
 
+            // Initilase server
             if(!servers[msg.guild.id]) servers[msg.guild.id] = {
                 queue: [],
                 connection: null,
                 player: null
             }
 
+            // Adds video to queue
             var server = servers[msg.guild.id];
             server.queue.push(args[1]);
             msg.reply("Video added to queue")
             console.log("Video added to queue");
 
+            // If bot not connected to voice create connections
             if(!msg.guild.me.voice.channel) {
                 console.log("Joining voice!")
                 const vc = msg.member?.voice.channel
@@ -115,6 +136,7 @@ bot.on("messageCreate", msg => {
         break;
 
         case("q"):
+            // Tries to print whole queue
             try {
                 var server = servers[msg.guild.id];
                 var s = "Videos in queue:  \n";
@@ -135,6 +157,7 @@ bot.on("messageCreate", msg => {
         break;
 
         case("s"):
+            // Skip song if possible
             if(servers[msg.guild.id].queue[0]) {
                 play(msg);
             }
@@ -144,9 +167,10 @@ bot.on("messageCreate", msg => {
             
         break
 
-        case("h"):
+        case("h"): 
+            // Print help
             msg.reply(
-                "To play a video: " + PREFIX + "p <Youtube URL> \n To showe queue: " + PREFIX + "q  \n To skip a video: " + PREFIX + "s  \n To KYS: " + PREFIX + "k \n"
+                "To play a video: " + PREFIX + "p <Youtube URL> \nTo show queue: " + PREFIX + "q  \nTo skip a video: " + PREFIX + "s  \nTo KYS: " + PREFIX + "k \n"
                 );
         break;
 
