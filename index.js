@@ -100,7 +100,9 @@ bot.on("messageCreate", msg => {
             // Adds video to queue
             var server = servers[msg.guild.id];
             server.queue.push(args[1]);
-            msg.reply("Video added to queue")
+            msg.react("🤰");
+            msg.react("🚛");
+            msg.react("🤠");
             console.log("Video added to queue");
 
             // If bot not connected to voice create connections
@@ -116,7 +118,7 @@ bot.on("messageCreate", msg => {
 
                 server.player = createAudioPlayer({
                     behaviors: {
-                        noSubscriber: NoSubscriberBehavior.Pause,
+                        noSubscriber: NoSubscriberBehavior.Play,
                     },
                 });
 
