@@ -17,6 +17,8 @@ const bot = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_VO
 const ytdl = require("ytdl-core");
 require("dotenv").config();
 
+const ytsr = require('ytsr');
+
 const PREFIX = "!";
 
 var servers = {};
@@ -74,6 +76,14 @@ bot.on("messageCreate", msg => {
                 console.log("Disconnected from server")
             }
 
+            async function queryYT(s) {
+                const option = {
+                    limit: 1,
+                }
+                const sr = await ytsr(s, option);
+                return sr;
+            }
+
             // Check if there is a link after !p
             if(!args[1] ) {
                 msg.channel.send("Put a link???");
@@ -85,12 +95,6 @@ bot.on("messageCreate", msg => {
                 msg.channel.send("Bruhh connect to voice");
                 return;
             }
-            
-            // Check if given link is valid
-            if(!ytdl.validateURL(args[1])) {
-                msg.reply("Plox insert valid Youtube URL");
-                return;
-            }
 
             // Initilase server
             if(!servers[msg.guild.id]) servers[msg.guild.id] = {
@@ -98,10 +102,22 @@ bot.on("messageCreate", msg => {
                 connection: null,
                 player: null
             }
+            
+            // Check if given link is valid
+            if(!ytdl.validateURL(args[1])) {
+                var server = servers[msg.guild.id];
+                server.queue.push(queryYT(args[1]));
+                //msg.reply("Plox insert valid Youtube URL");
+            }
+            else {
+                var server = servers[msg.guild.id];
+                server.queue.push(args[1]);
+            }
+
+            
 
             // Adds video to queue
-            var server = servers[msg.guild.id];
-            server.queue.push(args[1]);
+            
             msg.react("🤰");
             msg.react("🚛");
             msg.react("🤠");
