@@ -28,7 +28,9 @@ bot.on("ready", () => {
 
 
 bot.on("messageCreate", msg => {
-
+    if(msg.content.substring(0 ,PREFIX.length) != PREFIX) {
+        return;
+    }
     let args = msg.content.substring(PREFIX.length).split(" ");
 
     switch(args[0].toLowerCase()) {
