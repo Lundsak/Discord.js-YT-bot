@@ -65,7 +65,7 @@ bot.on("messageCreate", async function(msg) {
                     server.player.stop();
                     server.connection.destroy();
                 } catch (error) {
-                    msg.reply("I am not connected??? 🤰")
+                    //msg.reply("I am not connected??? 🤰")
                 }
                 
                 server = {
@@ -116,22 +116,18 @@ bot.on("messageCreate", async function(msg) {
                     console.log(sr);
                     var server = servers[msg.guild.id];
                     server.queue.push(sr);
+                    msg.reply(sr + " added to queue 😏")
                 } catch (error) {
                     msg.reply("No reults found! 🤓");
                     return;
                 }
-                
-                
             }
             else {
                 var server = servers[msg.guild.id];
                 server.queue.push(args[1]);
             }
 
-            
-
-            // Adds video to queue
-            
+            // Adds video to queue   
             msg.react("🤰");
             msg.react("🚛");
             msg.react("🤠");
@@ -192,12 +188,18 @@ bot.on("messageCreate", async function(msg) {
 
         case("s"):
             // Skip song if possible
-            if(servers[msg.guild.id].queue[0]) {
-                play(msg);
+            try {
+                if(servers[msg.guild.id].queue[0]) {
+                    play(msg);
+                }
+                else {
+                    disconnect(msg);
+                }
+            } catch (error) {
+                msg.react("🤨");
             }
-            else {
-                disconnect(msg);
-            }
+            
+            
             
         break
 
