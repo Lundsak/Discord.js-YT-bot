@@ -29,7 +29,7 @@ bot.on("ready", () => {
 
 
 
-bot.on("messageCreate", msg => {
+bot.on("messageCreate", async function(msg) {
     if(msg.content.substring(0 ,PREFIX.length) != PREFIX) {
         return;
     }
@@ -77,11 +77,13 @@ bot.on("messageCreate", msg => {
             }
 
             async function queryYT(s) {
+                let filters = await ytsr.getFilters(s);
+                const filter = filters.get('Type').get('Video');
                 const option = {
                     limit: 1,
                 }
-                const sr = await ytsr(s, option);
-                return sr;
+                const sr = await ytsr(filter.url, option);
+                return sr.items[0].url;
             }
 
             // Check if there is a link after !p
@@ -105,8 +107,12 @@ bot.on("messageCreate", msg => {
             
             // Check if given link is valid
             if(!ytdl.validateURL(args[1])) {
+                console.log("NONE VALID LINK");
+                let sr = await queryYT(args[1])
+                console.log(sr);
                 var server = servers[msg.guild.id];
-                server.queue.push(queryYT(args[1]));
+                
+                server.queue.push(sr);
                 //msg.reply("Plox insert valid Youtube URL");
             }
             else {
