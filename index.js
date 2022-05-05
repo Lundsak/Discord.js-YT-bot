@@ -83,6 +83,9 @@ bot.on("messageCreate", async function(msg) {
                     limit: 1,
                 }
                 const sr = await ytsr(filter.url, option);
+                if(sr.results < 1) {
+                    throw new Error('No result');
+                }
                 return sr.items[0].url;
             }
 
@@ -106,14 +109,19 @@ bot.on("messageCreate", async function(msg) {
             }
             
             // Check if given link is valid
+            // QUERY YT if none valid link
             if(!ytdl.validateURL(args[1])) {
-                console.log("NONE VALID LINK");
-                let sr = await queryYT(args[1])
-                console.log(sr);
-                var server = servers[msg.guild.id];
+                try {
+                    let sr = await queryYT(args[1])
+                    console.log(sr);
+                    var server = servers[msg.guild.id];
+                    server.queue.push(sr);
+                } catch (error) {
+                    msg.reply("No reults found! 🤓");
+                    return;
+                }
                 
-                server.queue.push(sr);
-                //msg.reply("Plox insert valid Youtube URL");
+                
             }
             else {
                 var server = servers[msg.guild.id];
