@@ -112,7 +112,12 @@ bot.on("messageCreate", async function(msg) {
             // QUERY YT if none valid link
             if(!ytdl.validateURL(args[1])) {
                 try {
-                    let sr = await queryYT(args[1])
+                    let s = "";
+                    for (let i = 1; i < args.length; i++) {
+                        s = s + args[i] + " ";
+                    }
+
+                    let sr = await queryYT(s);
                     console.log(sr);
                     var server = servers[msg.guild.id];
                     server.queue.push(sr);
@@ -123,11 +128,12 @@ bot.on("messageCreate", async function(msg) {
                 }
             }
             else {
+                // Push valid link to queue
                 var server = servers[msg.guild.id];
                 server.queue.push(args[1]);
             }
 
-            // Adds video to queue   
+            // Reponse to video added   
             msg.react("🤰");
             msg.react("🚛");
             msg.react("🤠");
@@ -191,9 +197,11 @@ bot.on("messageCreate", async function(msg) {
             try {
                 if(servers[msg.guild.id].queue[0]) {
                     play(msg);
+                    msg.react("😘");
                 }
                 else {
                     disconnect(msg);
+                    msg.react("😴");
                 }
             } catch (error) {
                 msg.react("🤨");
